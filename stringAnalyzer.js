@@ -20,54 +20,79 @@ const rulesTable = {
     }
 }
 
-const terminalCharacters = ["(", ")", "*", "+", "-", "a", "b"];
+const terminalCharacters = ["(", ")", "*", "+", "-", "a", "b", "$"];
 
 const isTermnial = (character) => terminalCharacters.includes(character);
 
+function generateIsEmpty(production) {
+    const [, right] = production.split('>');
+
+    return !right;
+}
+
 function stackPush(production) {
-    if (!production) {
-        return;
-    }
     const [, right] = production.split('>');
     stack.push(
         ...right.split('').reverse()
     )
+    console.log(stack.join(''));
+}
+
+function stackPop(print) {
+    if (stack.length < 1) terminate();
+    stack.pop();
+    if (print) console.log(stack.join(''));
+}
+
+function terminate() {
+    console.log("String is not recognized");
+    process.exit(0);
 }
 
 function M(nonTerminal, character) {
-    return production = rulesTable[nonTerminal][character];
+    return production = rulesTable[nonTerminal]?.[character];
 }
 
-const stack = ['$'];
+const stack = ['$', 'G'];
 
 function parse(input) {
     input = input + "$";
 
-    let production = rulesTable['G']['('];
-
-    stackPush(production);
-
+    console.log(stack.join(''));
 
     for (let character of input) {
-        let top = stack.pop();
-
-        while (top === 'e') {
-            top = stack.pop();
-        }
+        let top = stack[stack.length - 1];
 
         if (top === character) {
+            stackPop();
             continue;
-        } else {
-            stack.push(top)
         }
 
         while (!isTermnial(top)) {
+            stackPop(false);
             production = M(top, character);
-            stackPush(production);
-            top = stack.pop();
+
+            if (!production) terminate();
+
+            if (!generateIsEmpty(production)) {
+                stackPush(production);
+            } else {
+                console.log(stack.join(''));
+            }
+
+            top = stack[stack.length - 1];
         }
-        console.log(stack.join(''))
+
+        if (top === character) {
+            stackPop();
+        } else {
+            terminate();
+        }
+
+        console.log(stack.join(''));
     }
+
+    console.log("String is recognized");
 }
 
 parse("((a-b)*(a+b))");
