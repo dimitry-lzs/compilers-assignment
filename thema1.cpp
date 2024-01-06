@@ -2,6 +2,8 @@
 #include <stack>
 #include <string>
 
+// Solution is written by Tsalmpo https://github.com/Tsalmpo
+
 using namespace std;
 
 class AutomatoStoivas
