@@ -252,7 +252,7 @@ int main(int argc, char* argv[])
 
         // If user input is empty, use a predefined string
         if (toParse.empty()) {
-            toParse = "(((b*a))*a*b)";
+            toParse = "((a-b)*(a+b))";
         }
     }
 
