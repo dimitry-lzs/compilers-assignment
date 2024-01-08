@@ -36,6 +36,7 @@ function M(nonTerminal, character) {
 
 
 function parse(input) {
+    console.log("Parsing string: " + input);
     const stack = ['$', 'G'];
     input = input + "$";
 
