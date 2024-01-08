@@ -20,18 +20,6 @@ const rulesTable = {
     }
 }
 
-class TreeNode {
-    constructor(value) {
-        this.value = value;
-        this.children = [];
-    }
-
-    addChild(node) {
-        this.children.push(node);
-    }
-}
-
-
 const terminalCharacters = ["(", ")", "*", "+", "-", "a", "b"];
 
 const isTermnial = (character) => terminalCharacters.includes(character);
@@ -46,35 +34,35 @@ function M(nonTerminal, character) {
     return production = rulesTable[nonTerminal]?.[character];
 }
 
-function terminate() {
-    console.log("String is not recognized");
-}
 
 function parse(input) {
-    function stackPush(production, currentNode) {
+    const stack = ['$', 'G'];
+    input = input + "$";
+
+    function stackPush(production) {
         const [, right] = production.split('>');
-        right.split('').reverse().forEach(char => {
-            const newNode = new TreeNode(char);
-            currentNode.addChild(newNode);
-            stack.push({ symbol: char, node: newNode });
-        });
-        console.log(stack.map(s => s.symbol).join(''));
+        stack.push(
+            ...right.split('').reverse()
+        )
+        console.log(stack.join(''));
     }
+
     function stackPop(print) {
         if (stack.length < 1) terminate();
-        if (print) console.log(stack.map(s => s.symbol).join(''));
+        stack.pop();
+        if (print) console.log(stack.join(''));
     }
 
-    const root = new TreeNode('G');
-    const stack = [{ symbol: '$', node: null }, { symbol: 'G', node: root }];
-    input += "$";
+    function terminate() {
+        console.log("String is not recognized");
+    }
 
-    console.log(stack.map(s => s.symbol).join(''));
+    console.log(stack.join(''));
 
     for (let character of input) {
-        let topStack = stack[stack.length - 1];
+        let top = stack[stack.length - 1];
 
-        if (topStack.symbol === '$') {
+        if (top === '$') {
             if (character !== '$') {
                 return terminate();
             } else {
@@ -82,54 +70,37 @@ function parse(input) {
             }
         }
 
-        if (topStack.symbol === character) {
-            stackPop(true);
+        if (top === character) {
+            stackPop();
             continue;
         }
 
-        while (!isTermnial(topStack.symbol)) {
+        while (!isTermnial(top)) {
             stackPop(false);
-            const production = M(topStack.symbol, character);
+            production = M(top, character);
 
             if (!production) return terminate();
 
             if (!generateIsEmpty(production)) {
-                stackPush(production, topStack.node);
+                stackPush(production);
             } else {
-                console.log(stack.map(s => s.symbol).join(''));
+                console.log(stack.join(''));
             }
 
-            topStack = stack[stack.length - 1];
+            top = stack[stack.length - 1];
         }
 
-        if (topStack.symbol === character) {
-            stackPop(true);
+        if (top === character) {
+            stackPop();
         } else {
             return terminate();
         }
 
-        console.log(stack.map(s => s.symbol).join(''));
+        console.log(stack.join(''));
     }
 
     console.log("String is recognized");
-    printTree(root);
 }
-
-
-function printTree(node, level = 0) {
-    if (!node) return;
-    // Indentation for the current level
-    const indent = ' '.repeat(level * 2);
-
-    // Print the current node
-    console.log(indent + node.value);
-
-    // Recursively print children in their original order
-    node.children.forEach(child => {
-        printTree(child, level + 1);
-    });
-}
-
 
 parse("(((b*a))*a*b)");
 
@@ -220,8 +191,6 @@ const invalidStrings = [
     '(a-a+a--a)'
 ]
 
-for (let array of [validStrings, validInvalidStrings, invalidStrings]) {
-    for (let string of array) {
-        parse(string);
-    }
+for (let string of invalidStrings) {
+    parse(string);
 }
