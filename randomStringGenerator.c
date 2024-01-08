@@ -25,7 +25,7 @@ void generate_Z(char *result, int *pos, int depth)
     result[(*pos)++] = '(';
     printf("Applied rule <Z> ::= (<K>)\n");
     printf("Generated string: %s\n", result);
-    generate_K(result, pos, depth + 1);
+    generate_K(result, pos, depth);
     result[(*pos)++] = ')';
 }
 
