@@ -34,7 +34,9 @@
 ![Expression xxyyxyxy gets accepted](./screenshots/subject1_success.png)
 
 2. Δύο Παραδείγματα Απόρριψης
+
 ![Expression yxxy gets rejected](./screenshots/subject1_reject.png)
+
 ![Expression xxyyy gets rejected](./screenshots/subject1_reject2.png)
 
 ---
