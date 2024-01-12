@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <locale.h>
 
 void generate_Z(char *result, int *pos, int depth);
 void generate_K(char *result, int *pos, int depth);
@@ -11,7 +10,6 @@ void generate_M(char *result, int *pos, int depth);
 
 int main()
 {
-    setlocale(LC_ALL, "");
     srand(time(NULL));       // Seed the random number generator
     char result[1000] = {0}; // Buffer for the resulting string and set it to zero
     int pos = 0;             // Current position in the string buffer
