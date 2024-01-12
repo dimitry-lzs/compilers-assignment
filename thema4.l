@@ -148,7 +148,7 @@ int yywrap() {
 }
 
 int main() {
-printf("Available phrases are:\n1.shmeio\n2.eutheia\n3.trigwno\n4.tetragwno\n5.pentagwno\n6.eksagwno\n7.eptagwno\n8.oktagwno\nPlease enter your input (or enter '0' to exit): ");
+    printf("Available phrases are:\n1.shmeio\n2.eutheia\n3.trigwno\n4.tetragwno\n5.pentagwno\n6.eksagwno\n7.eptagwno\n8.oktagwno\nPlease enter your input (or enter '0' to exit): ");
     yylex();
     return 0;
 }
