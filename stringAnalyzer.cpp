@@ -3,6 +3,7 @@
 #include <set>
 #include <string>
 #include <vector>
+#include "node.h"
 
 // Global declaration of the rulesTable
 std::map<std::string, std::map<std::string, std::string>> rulesTable;
@@ -39,77 +40,6 @@ void initializeTerminalCharacters() {
 
 // Function to check if a character is a terminal character
 bool isTerminal(char character) { return terminalCharacters.find(character) != terminalCharacters.end(); }
-
-class Node {
-  public:
-    Node(char name) {
-        this->name = name;
-        this->parent = nullptr;
-    }
-
-    void push(const std::string &production) {
-        size_t position = production.find('>');
-        std::string right = production.substr(position + 1);
-
-        if (right.length() == 0) {
-            right = "e";
-        }
-
-        for (int i = right.length() - 1; i >= 0; --i) {
-            char character = right[i];
-
-            Node *child = new Node(character);
-            child->setParent(this);
-            this->addChild(child);
-        }
-        this->setNextNode();
-    }
-
-    Node *getNextNode() { return this->nextNode; }
-
-    char getName() { return name; }
-
-    std::vector<Node *> getChildren() { return this->children; }
-
-  private:
-    char name;
-    Node *parent;
-    Node *nextNode;
-    std::vector<Node *> children;
-
-    void setParent(Node *parent) { this->parent = parent; }
-
-    Node *climbUp() { return this->parent; }
-
-    Node *searchNextNode(Node *currentNode) {
-        Node *nextNode = nullptr;
-        for (int i = 0; i < currentNode->children.size(); ++i) {
-            if (!isTerminal(currentNode->children[i]->getName()) && !currentNode->children[i]->children.size()) {
-                return currentNode->children[i];
-                break;
-            }
-        }
-        return nextNode;
-    }
-
-    void setNextNode() {
-        Node *currentNode = this;
-        Node *nextNode = this->searchNextNode(currentNode);
-
-        while (nextNode == nullptr && currentNode->parent != nullptr) {
-            currentNode = currentNode->climbUp();
-            nextNode = this->searchNextNode(currentNode);
-        }
-
-        if (nextNode != nullptr) {
-            this->nextNode = nextNode;
-        } else {
-            std::cout << "No next node found" << std::endl;
-        }
-    }
-
-    void addChild(Node *child) { this->children.push_back(child); }
-};
 
 extern std::map<std::string, std::map<std::string, std::string>> rulesTable;
 
@@ -178,8 +108,8 @@ void parse(const std::string &input) {
     stack.push_back('$');
     stack.push_back('G');
 
-    Node* root = new Node('G');
-    Node* currentNode = root;
+    Node *root = new Node('G');
+    Node *currentNode = root;
 
     std::string augmentedInput = input + "$";
 
@@ -224,6 +154,11 @@ void parse(const std::string &input) {
 
             currentNode->push(*production);
             currentNode = currentNode->getNextNode();
+
+            if (currentNode == nullptr) {
+                std::cout << "No next node found" << std::endl;
+                std::cout << stack.back() << std::endl;
+            }
 
             top = stack.back();
         }
