@@ -1,14 +1,13 @@
 #include <iostream>
 #include <map>
-#include <string>
 #include <set>
+#include <string>
 #include <vector>
 
 // Global declaration of the rulesTable
-std::map<std::string, std::map<std::string, std::string> > rulesTable;
+std::map<std::string, std::map<std::string, std::string>> rulesTable;
 
-void initializeRulesTable()
-{
+void initializeRulesTable() {
     // Initialize the table with values
     rulesTable["G"]["("] = "G>(M)";
     rulesTable["M"]["("] = "M>YZ";
@@ -27,8 +26,7 @@ void initializeRulesTable()
 std::set<char> terminalCharacters;
 
 // Initialize the terminal characters set
-void initializeTerminalCharacters()
-{
+void initializeTerminalCharacters() {
     terminalCharacters.insert('(');
     terminalCharacters.insert(')');
     terminalCharacters.insert('*');
@@ -36,32 +34,98 @@ void initializeTerminalCharacters()
     terminalCharacters.insert('-');
     terminalCharacters.insert('a');
     terminalCharacters.insert('b');
+    terminalCharacters.insert('e');
 }
 
 // Function to check if a character is a terminal character
-bool isTerminal(char character)
-{
-    return terminalCharacters.find(character) != terminalCharacters.end();
-}
+bool isTerminal(char character) { return terminalCharacters.find(character) != terminalCharacters.end(); }
 
-extern std::map<std::string, std::map<std::string, std::string> > rulesTable;
+class Node {
+  public:
+    Node(char name) {
+        this->name = name;
+        this->parent = nullptr;
+    }
 
-const std::string *M(const std::string &nonTerminal, const std::string &character)
-{
-    std::map<std::string, std::map<std::string, std::string> >::const_iterator nonTerminalIter = rulesTable.find(nonTerminal);
-    if (nonTerminalIter != rulesTable.end())
-    {
+    void push(const std::string &production) {
+        size_t position = production.find('>');
+        std::string right = production.substr(position + 1);
+
+        if (right.length() == 0) {
+            right = "e";
+        }
+
+        for (int i = right.length() - 1; i >= 0; --i) {
+            char character = right[i];
+
+            Node *child = new Node(character);
+            child->setParent(this);
+            this->addChild(child);
+        }
+        this->setNextNode();
+    }
+
+    Node *getNextNode() { return this->nextNode; }
+
+    char getName() { return name; }
+
+    std::vector<Node *> getChildren() { return this->children; }
+
+  private:
+    char name;
+    Node *parent;
+    Node *nextNode;
+    std::vector<Node *> children;
+
+    void setParent(Node *parent) { this->parent = parent; }
+
+    Node *climbUp() { return this->parent; }
+
+    Node *searchNextNode(Node *currentNode) {
+        Node *nextNode = nullptr;
+        for (int i = 0; i < currentNode->children.size(); ++i) {
+            if (!isTerminal(currentNode->children[i]->getName()) && !currentNode->children[i]->children.size()) {
+                return currentNode->children[i];
+                break;
+            }
+        }
+        return nextNode;
+    }
+
+    void setNextNode() {
+        Node *currentNode = this;
+        Node *nextNode = this->searchNextNode(currentNode);
+
+        while (nextNode == nullptr && currentNode->parent != nullptr) {
+            currentNode = currentNode->climbUp();
+            nextNode = this->searchNextNode(currentNode);
+        }
+
+        if (nextNode != nullptr) {
+            this->nextNode = nextNode;
+        } else {
+            std::cout << "No next node found" << std::endl;
+        }
+    }
+
+    void addChild(Node *child) { this->children.push_back(child); }
+};
+
+extern std::map<std::string, std::map<std::string, std::string>> rulesTable;
+
+const std::string *M(const std::string &nonTerminal, const std::string &character) {
+    std::map<std::string, std::map<std::string, std::string>>::const_iterator nonTerminalIter = rulesTable.find(nonTerminal);
+    if (nonTerminalIter != rulesTable.end()) {
         const std::map<std::string, std::string> &innerMap = nonTerminalIter->second;
         std::map<std::string, std::string>::const_iterator characterIter = innerMap.find(character);
-        if (characterIter != innerMap.end())
-        {
+        if (characterIter != innerMap.end()) {
             return &(characterIter->second);
         }
     }
     return nullptr; // Return nullptr if not found
 }
 
-bool generateIsEmpty(const std::string& production) {
+bool generateIsEmpty(const std::string &production) {
     size_t pos = production.find('>');
 
     // Check if '>' is found and not at the end of the string
@@ -77,7 +141,7 @@ bool generateIsEmpty(const std::string& production) {
     return true;
 }
 
-void stackPush(std::vector<char>& stack, const std::string& production) {
+void stackPush(std::vector<char> &stack, const std::string &production) {
     size_t pos = production.find('>');
     if (pos != std::string::npos) {
         std::string right = production.substr(pos + 1);
@@ -91,7 +155,7 @@ void stackPush(std::vector<char>& stack, const std::string& production) {
     std::cout << std::endl;
 }
 
-void stackPop(std::vector<char>& stack, bool print) {
+void stackPop(std::vector<char> &stack, bool print) {
     if (stack.empty()) {
         std::cout << "String is not recognized" << std::endl;
         exit(1);
@@ -105,16 +169,18 @@ void stackPop(std::vector<char>& stack, bool print) {
     }
 }
 
-void terminate() {
-    std::cout << "String is not recognized" << std::endl;
-}
+void terminate() { std::cout << "String is not recognized" << std::endl; }
 
-void parse(const std::string& input) {
+void parse(const std::string &input) {
     std::cout << "Parsing: " << input << std::endl;
 
     std::vector<char> stack;
     stack.push_back('$');
     stack.push_back('G');
+
+    Node* root = new Node('G');
+    Node* currentNode = root;
+
     std::string augmentedInput = input + "$";
 
     for (size_t j = 0; j < stack.size(); ++j) {
@@ -142,9 +208,10 @@ void parse(const std::string& input) {
 
         while (!isTerminal(top)) {
             stackPop(stack, false);
-            const std::string* production = M(std::string(1, top), std::string(1, character));
+            const std::string *production = M(std::string(1, top), std::string(1, character));
 
-            if (!production) return terminate();
+            if (!production)
+                return terminate();
 
             if (!generateIsEmpty(*production)) {
                 stackPush(stack, *production);
@@ -154,6 +221,9 @@ void parse(const std::string& input) {
                 }
                 std::cout << std::endl;
             }
+
+            currentNode->push(*production);
+            currentNode = currentNode->getNextNode();
 
             top = stack.back();
         }
@@ -168,9 +238,7 @@ void parse(const std::string& input) {
     std::cout << "String is recognized" << std::endl;
 }
 
-
-int main(int argc, char* argv[])
-{
+int main(int argc, char *argv[]) {
     initializeRulesTable();
     initializeTerminalCharacters();
 
