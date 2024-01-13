@@ -20,7 +20,74 @@ const rulesTable = {
     }
 }
 
-const terminalCharacters = ["(", ")", "*", "+", "-", "a", "b"];
+class Node {
+    constructor(name) {
+        this.name = name;
+        this.done = false;
+        this.parent = null;
+
+        isTermnial(this.name) ? this.children = undefined : this.children = [];
+    }
+
+    climbUp() {
+        return this.parent;
+    }
+
+    setParent(parent) {
+        this.parent = parent;
+    }
+
+    push(production) {
+        let [, rule] = production.split('>');
+
+        if (generateIsEmpty(production)) {
+            rule = 'ε';
+        }
+
+        this.done = true;
+
+        for (let character of rule) {
+            const node = new Node(character);
+            node.setParent(this);
+            this.children.push(node);
+        }
+
+        this.setNextNode();
+    }
+
+    setNextNode() {
+        let currentNode = this;
+        let nextNode = null;
+
+        function findNode() {
+            for (let node of currentNode.children) {
+                if (node.name !== currentNode.name && !isTermnial(node.name) && !node.done) {
+                    nextNode = node;
+                    break;
+                }
+            }
+        }
+
+        findNode();
+
+        while (!nextNode && currentNode.parent) {
+            findNode();
+            currentNode = currentNode.parent;
+        }
+
+        if (!nextNode) {
+            console.log("No next node");
+        }
+
+        this.nextNode = nextNode;
+    }
+
+    get getNextNode() {
+        return this.nextNode;
+    }
+}
+
+const terminalCharacters = ["(", ")", "*", "+", "-", "a", "b", 'ε'];
 
 const isTermnial = (character) => terminalCharacters.includes(character);
 
@@ -39,6 +106,9 @@ function parse(input) {
     console.log("Parsing string: " + input);
     const stack = ['$', 'G'];
     input = input + "$";
+
+    let node = new Node(stack[stack.length - 1]);
+    let root = node;
 
     function stackPush(production) {
         const [, right] = production.split('>');
@@ -88,6 +158,8 @@ function parse(input) {
                 console.log(stack.join(''));
             }
 
+            node.push(production);
+            node = node.getNextNode;
             top = stack[stack.length - 1];
         }
 
@@ -101,9 +173,26 @@ function parse(input) {
     }
 
     console.log("String is recognized");
+
+    function printNodes(nodes) {
+
+        let childs = [];
+
+        for (let node of nodes) {
+            childs.push(...node.children);
+        }
+
+        console.log(childs.map(child => child.name).join(' '));
+
+        if (childs.filter(child => child.children?.length).length > 0) {
+            printNodes(childs.filter(child => child.children));
+        }
+    }
+
+    printNodes([root]);
 }
 
-parse("(((b*a))*a*b)");
+parse("((a-b)*(a+b))");
 
 const validStrings = [
     '(a-(b)*b*b)',
@@ -192,6 +281,6 @@ const invalidStrings = [
     '(a-a+a--a)'
 ]
 
-for (let string of invalidStrings) {
-    parse(string);
-}
+// for (let string of invalidStrings) {
+//     parse(string);
+// }
