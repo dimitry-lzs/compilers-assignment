@@ -101,6 +101,17 @@ function M(nonTerminal, character) {
     return production = rulesTable[nonTerminal]?.[character];
 }
 
+function prettyPrintTree(tree, prefix = '', isLast = true) {
+    const connector = isLast ? '└── ' : '├── ';
+    console.log(`${prefix}${connector}${tree.name}`);
+
+    const newPrefix = prefix + (isLast ? '    ' : '│   ');
+    tree.children?.reverse()?.forEach((child, index) => {
+        const isChildLast = index === tree.children.length - 1;
+        prettyPrintTree(child, newPrefix, isChildLast);
+    });
+}
+
 
 function parse(input) {
     console.log("Parsing string: " + input);
@@ -189,7 +200,8 @@ function parse(input) {
         }
     }
 
-    printNodes([root]);
+    // printNodes([root]);
+    prettyPrintTree(root);
 }
 
 parse("((a-b)*(a+b))");
