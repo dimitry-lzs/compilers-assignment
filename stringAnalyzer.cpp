@@ -7,7 +7,7 @@
 #include "node.h"
 
 // Global declaration of the rulesTable
-std::map<std::string, std::map<std::string, std::string>> rulesTable;
+std::map<std::string, std::map<std::string, std::string> > rulesTable;
 
 void initializeRulesTable() {
     // Initialize the table with values
@@ -42,10 +42,10 @@ void initializeTerminalCharacters() {
 // Function to check if a character is a terminal character
 bool isTerminal(char character) { return terminalCharacters.find(character) != terminalCharacters.end(); }
 
-extern std::map<std::string, std::map<std::string, std::string>> rulesTable;
+extern std::map<std::string, std::map<std::string, std::string> > rulesTable;
 
 const std::string *M(const std::string &nonTerminal, const std::string &character) {
-    std::map<std::string, std::map<std::string, std::string>>::const_iterator nonTerminalIter = rulesTable.find(nonTerminal);
+    std::map<std::string, std::map<std::string, std::string> >::const_iterator nonTerminalIter = rulesTable.find(nonTerminal);
     if (nonTerminalIter != rulesTable.end()) {
         const std::map<std::string, std::string> &innerMap = nonTerminalIter->second;
         std::map<std::string, std::string>::const_iterator characterIter = innerMap.find(character);
