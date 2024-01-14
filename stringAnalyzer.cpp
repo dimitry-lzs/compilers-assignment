@@ -203,6 +203,9 @@ void parse(const std::string &input) {
         }
     }
 
+    std::cout << "Parse tree:" << '\n';
+    std::cout << root->getName() << '\n';
+
     printNodes(std::vector<Node *>{root});
 
     std::cout << "String is recognized" << '\n';
