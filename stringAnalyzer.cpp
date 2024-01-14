@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <iomanip>
+#include <algorithm>
 #include "node.h"
 
 // Global declaration of the rulesTable
@@ -111,32 +112,16 @@ void stackPop(std::vector<char> &stack, const std::string &string = "") {
 
 void terminate() { std::cout << "String is not recognized" << '\n'; }
 
-void printNodes(const std::vector<Node*>& nodes) {
-    std::vector<Node*> children;
+void prettyPrintTree(Node* node, std::string prefix = "", bool isLast = true) {
+    std::string connector = isLast ? "└── " : "├── ";
+    std::cout << prefix << connector << node->getName() << '\n';
 
-    for (Node* node : nodes) {
-        if (node->getChildren().empty()) {
-            continue;
-        }
-        std::vector<Node*> nodeChildren = node->getChildren();
-        children.insert(children.end(), nodeChildren.begin(), nodeChildren.end());
-    }
-
-    for (Node* child : children) {
-        std::cout << child->getName() << " ";
-    }
-    std::cout << std::endl;
-
-    bool hasChildren = false;
-    for (Node* child : children) {
-        if (!child->getChildren().empty()) {
-            hasChildren = true;
-            break;
-        }
-    }
-
-    if (hasChildren) {
-        printNodes(children);
+    std::string newPrefix = prefix + (isLast ? "    " : "│   ");
+    std::vector<Node*> children = node->getChildren();
+    std::reverse(children.begin(), children.end());
+    for (size_t i = 0; i < children.size(); ++i) {
+        bool isChildLast = i == children.size() - 1;
+        prettyPrintTree(children[i], newPrefix, isChildLast);
     }
 }
 
@@ -203,11 +188,7 @@ void parse(const std::string &input) {
         }
     }
 
-    std::cout << "Parse tree:" << '\n';
-    std::cout << root->getName() << '\n';
-
-    printNodes(std::vector<Node *>{root});
-
+    prettyPrintTree(root);
     std::cout << "String is recognized" << '\n';
 }
 
