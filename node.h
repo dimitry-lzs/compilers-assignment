@@ -13,6 +13,8 @@ class Node {
 
     Node *getNextNode();
     char getName();
+    std::vector<Node *> getChildren();
+    void printChildren();
 
   private:
     char name;

@@ -71,6 +71,13 @@ bool generateIsEmpty(const std::string &production) {
     return true;
 }
 
+void printStack(std::vector<char> &stack) {
+    for (char character : stack) {
+        std::cout << character;
+    }
+    std::cout << '\n';
+}
+
 void stackPush(std::vector<char> &stack, const std::string &production) {
     size_t pos = production.find('>');
     if (pos != std::string::npos) {
@@ -79,30 +86,53 @@ void stackPush(std::vector<char> &stack, const std::string &production) {
             stack.push_back(right[i]);
         }
     }
-    for (size_t i = 0; i < stack.size(); ++i) {
-        std::cout << stack[i];
-    }
-    std::cout << std::endl;
+    printStack(stack);
 }
 
 void stackPop(std::vector<char> &stack, bool print) {
     if (stack.empty()) {
-        std::cout << "String is not recognized" << std::endl;
+        std::cout << "String is not recognized" << '\n';
         exit(1);
     }
     stack.pop_back();
     if (print) {
-        for (size_t i = 0; i < stack.size(); ++i) {
-            std::cout << stack[i];
-        }
-        std::cout << std::endl;
+        printStack(stack);
     }
 }
 
-void terminate() { std::cout << "String is not recognized" << std::endl; }
+void terminate() { std::cout << "String is not recognized" << '\n'; }
+
+void printNodes(const std::vector<Node*>& nodes) {
+    std::vector<Node*> children;
+
+    for (Node* node : nodes) {
+        if (node->getChildren().empty()) {
+            continue;
+        }
+        std::vector<Node*> nodeChildren = node->getChildren();
+        children.insert(children.end(), nodeChildren.begin(), nodeChildren.end());
+    }
+
+    for (Node* child : children) {
+        std::cout << child->getName() << " ";
+    }
+    std::cout << std::endl;
+
+    bool hasChildren = false;
+    for (Node* child : children) {
+        if (!child->getChildren().empty()) {
+            hasChildren = true;
+            break;
+        }
+    }
+
+    if (hasChildren) {
+        printNodes(children);
+    }
+}
 
 void parse(const std::string &input) {
-    std::cout << "Parsing: " << input << std::endl;
+    std::cout << "Parsing: " << input << '\n';
 
     std::vector<char> stack;
     stack.push_back('$');
@@ -113,11 +143,7 @@ void parse(const std::string &input) {
 
     std::string augmentedInput = input + "$";
 
-    for (size_t j = 0; j < stack.size(); ++j) {
-        std::cout << stack[j];
-    }
-
-    std::cout << std::endl;
+    printStack(stack);
 
     for (size_t i = 0; i < augmentedInput.length(); ++i) {
         char character = augmentedInput[i];
@@ -146,18 +172,15 @@ void parse(const std::string &input) {
             if (!generateIsEmpty(*production)) {
                 stackPush(stack, *production);
             } else {
-                for (size_t j = 0; j < stack.size(); ++j) {
-                    std::cout << stack[j];
-                }
-                std::cout << std::endl;
+                printStack(stack);
             }
 
             currentNode->push(*production);
             currentNode = currentNode->getNextNode();
 
             if (currentNode == nullptr) {
-                std::cout << "No next node found" << std::endl;
-                std::cout << stack.back() << std::endl;
+                std::cout << "No next node found" << '\n';
+                std::cout << stack.back() << '\n';
             }
 
             top = stack.back();
@@ -170,7 +193,9 @@ void parse(const std::string &input) {
         }
     }
 
-    std::cout << "String is recognized" << std::endl;
+    printNodes(std::vector<Node *>{root});
+
+    std::cout << "String is recognized" << '\n';
 }
 
 int main(int argc, char *argv[]) {

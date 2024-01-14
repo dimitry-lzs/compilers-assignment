@@ -6,7 +6,7 @@ bool generateIsEmpty(const std::string &production);
 Node::Node(char name) {
     this->name = name;
     this->parent = nullptr;
-    this->children = !isTerminal(this->name) ? new std::vector<Node *>() : nullptr;
+    this->children = new std::vector<Node *>();
 }
 
 Node::~Node() {
@@ -38,10 +38,21 @@ Node *Node::getNextNode() { return this->nextNode; }
 
 char Node::getName() { return this->name; }
 
+std::vector<Node *> Node::getChildren() { return *this->children; }
+
+void Node::printChildren() {
+    if (this->children != nullptr) {
+        for (Node *child : *this->children) {
+            std::cout << child->getName() << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+
 void Node::setParent(Node *parent) { this->parent = parent; }
 
 void Node::addChild(Node *child) {
-    if (children != nullptr) {
+    if (! isTerminal(this->getName())) {
         child->setParent(this);
         this->children->push_back(child);
     } else {
@@ -54,7 +65,7 @@ Node *Node::climbUp() { return this->parent; }
 Node *Node::searchNextNode(Node *currentNode) {
 
     for (Node *child : *currentNode->children) {
-        if (!isTerminal(child->getName()) && child->children != nullptr) {
+        if (!isTerminal(child->getName()) && child->children->empty()) {
             return child;
         }
     }
