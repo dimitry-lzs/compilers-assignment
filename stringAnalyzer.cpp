@@ -3,6 +3,7 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <iomanip>
 #include "node.h"
 
 // Global declaration of the rulesTable
@@ -78,7 +79,15 @@ void printStack(std::vector<char> &stack) {
     std::cout << '\n';
 }
 
-void stackPush(std::vector<char> &stack, const std::string &production) {
+void printStack(std::vector<char> &stack, const std::string &string) {
+    std::string stackContent;
+    for (char character : stack) {
+        stackContent += character;
+    }
+    std::cout << std::left << std::setw(20) << stackContent << string << '\n';
+}
+
+void stackPush(std::vector<char> &stack, const std::string &production, const std::string &string) {
     size_t pos = production.find('>');
     if (pos != std::string::npos) {
         std::string right = production.substr(pos + 1);
@@ -86,17 +95,17 @@ void stackPush(std::vector<char> &stack, const std::string &production) {
             stack.push_back(right[i]);
         }
     }
-    printStack(stack);
+    printStack(stack, string);
 }
 
-void stackPop(std::vector<char> &stack, bool print) {
+void stackPop(std::vector<char> &stack, const std::string &string = "") {
     if (stack.empty()) {
         std::cout << "String is not recognized" << '\n';
         exit(1);
     }
     stack.pop_back();
-    if (print) {
-        printStack(stack);
+    if (!string.empty()) {
+        printStack(stack, string);
     }
 }
 
@@ -143,7 +152,7 @@ void parse(const std::string &input) {
 
     std::string augmentedInput = input + "$";
 
-    printStack(stack);
+    printStack(stack, augmentedInput);
 
     for (size_t i = 0; i < augmentedInput.length(); ++i) {
         char character = augmentedInput[i];
@@ -158,22 +167,24 @@ void parse(const std::string &input) {
         }
 
         if (top == character) {
-            stackPop(stack, true);
+            stackPop(stack, augmentedInput.substr(i+1));
             continue;
         }
 
         while (!isTerminal(top)) {
-            stackPop(stack, false);
+            stackPop(stack);
             const std::string *production = M(std::string(1, top), std::string(1, character));
 
             if (!production)
                 return terminate();
 
             if (!generateIsEmpty(*production)) {
-                stackPush(stack, *production);
+                stackPush(stack, *production, augmentedInput.substr(i));
             } else {
-                printStack(stack);
+                printStack(stack, augmentedInput.substr(i));
             }
+
+            // std::cout << augmentedInput.substr(i) << std::endl;
 
             currentNode->push(*production);
             currentNode = currentNode->getNextNode();
@@ -186,7 +197,7 @@ void parse(const std::string &input) {
         }
 
         if (top == character) {
-            stackPop(stack, true);
+            stackPop(stack, augmentedInput.substr(i+1));
         } else {
             return terminate();
         }
