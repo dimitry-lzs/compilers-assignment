@@ -174,6 +174,7 @@ void generate_M(char *result, int *pos, int depth)
 #include <string>
 #include <set>
 #include <vector>
+#include <iomanip> // Για τη διαμόρφωση της εξόδου στην κονσόλα.
 ```
 
 #### Ανάλυση Βιβλιοθηκών
@@ -183,8 +184,50 @@ void generate_M(char *result, int *pos, int depth)
 - `<string>`: Διαχείριση συμβολοσειρών στο C++.
 - `<set>`: Δομή συνόλου για αποθήκευση μοναδικών τιμών.
 - `<vector>`: Δυναμικός πίνακας για αποθήκευση στοιχείων.
+- `<iomanip>`: Παρέχει λειτουργίες για τη διαμόρφωση της εξόδου (π.χ., `std::setw` για τον καθορισμό του πλάτους εξόδου).
 
 ### Κύριες Συναρτήσεις και Δομές
+
+#### `Node` Class
+
+```c++
+#ifndef NODE_H
+#define NODE_H
+
+#include <iostream>
+#include <vector>
+
+class Node {
+public:
+    Node(char name);
+    ~Node();
+
+    void push(const std::string &production);
+
+    Node *getNextNode();
+    char getName();
+    std::vector<Node *> getChildren();
+    void print
+
+Children();
+
+private:
+    char name;
+    Node *parent;
+    Node *nextNode;
+    std::vector<Node *> *children;
+
+    void setParent(Node *parent);
+    void addChild(Node *child);
+    Node *climbUp();
+    Node *searchNextNode(Node *currentNode);
+    void setNextNode();
+};
+
+#endif // NODE_H
+```
+
+Η κλάση `Node` αναπαριστά έναν κόμβο στο δέντρο ανάλυσης. Κάθε κόμβος περιέχει ένα χαρακτήρα που αντιπροσωπεύει ένα μη τερματικό ή τερματικό στοιχείο της γραμματικής, καθώς και δείκτες προς τον γονέα και τα παιδιά του. Η κλάση παρέχει λειτουργίες για την προσθήκη παιδιών, την αναζήτηση επόμενων κόμβων, και την εκτύπωση των παιδιών για την οπτικοποίηση της δομής του δέντρου.
 
 #### `initializeRulesTable()`
 Αρχικοποιεί τον πίνακα κανόνων `rulesTable`, που περιέχει τους κανόνες της γραμματικής.
