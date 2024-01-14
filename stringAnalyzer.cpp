@@ -178,10 +178,9 @@ void parse(const std::string &input) {
             currentNode->push(*production);
             currentNode = currentNode->getNextNode();
 
-            if (currentNode == nullptr) {
-                std::cout << "No next node found" << '\n';
-                std::cout << stack.back() << '\n';
-            }
+            // if (currentNode == nullptr) {
+            //     std::cout << "No next node found" << '\n';
+            // }
 
             top = stack.back();
         }

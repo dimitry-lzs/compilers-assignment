@@ -85,6 +85,6 @@ void Node::setNextNode() {
     if (nextNode) {
         this->nextNode = nextNode;
     } else {
-        std::cout << "No next node found" << std::endl;
+        // std::cout << "No next node found" << std::endl;
     }
 }
