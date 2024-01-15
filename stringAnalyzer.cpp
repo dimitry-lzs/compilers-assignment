@@ -7,6 +7,11 @@
 #include <algorithm>
 #include "node.h"
 
+#ifdef _WIN32
+// Include Windows-specific headers
+#include <windows.h>
+#endif
+
 // Global declaration of the rulesTable
 std::map<std::string, std::map<std::string, std::string> > rulesTable;
 
@@ -202,6 +207,14 @@ int main(int argc, char *argv[]) {
     initializeRulesTable();
     initializeTerminalCharacters();
 
+    #ifdef _WIN32
+    // Windows-specific code for UTF-8 support because
+    // certain characters used to display tree
+    //  are not supported by default
+    UINT oldCp = GetConsoleOutputCP();
+    SetConsoleOutputCP(CP_UTF8);
+    #endif
+
     // Valid strings tests
     std::vector<std::string> validStrings;
     validStrings.push_back("(a-(b)*b*b)");
@@ -285,5 +298,11 @@ int main(int argc, char *argv[]) {
     }
 
     parse(toParse);
+
+    #ifdef _WIN32
+    // Restore the original code page on Windows
+    SetConsoleOutputCP(oldCp);
+    #endif
+
     return 0;
 }
