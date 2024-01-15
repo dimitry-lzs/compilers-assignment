@@ -43,7 +43,7 @@ public:
                 }
                 else
                 {
-                    cout << "Expression Rejected: 'y' does not match to a 'x'";
+                    cout << "Expression Rejected: 'y' does not match to a 'x'\n";
                     return false;
                 }
             }
