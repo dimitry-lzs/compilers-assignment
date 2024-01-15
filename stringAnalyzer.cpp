@@ -112,9 +112,15 @@ void stackPop(std::vector<char> &stack, const std::string &string = "") {
 
 void terminate() { std::cout << "String is not recognized" << '\n'; }
 
+const std::string RED = "\033[31m";      // Red text
+const std::string GREEN = "\033[32m";    // Green text
+const std::string RESET = "\033[0m";     // Reset to default color
+
 void prettyPrintTree(Node* node, std::string prefix = "", bool isLast = true) {
     std::string connector = isLast ? "└── " : "├── ";
-    std::cout << prefix << connector << node->getName() << '\n';
+    std::string color = isTerminal(node->getName()) ? GREEN : RED;
+
+    std::cout << prefix << connector << color << node->getName() << RESET << '\n';
 
     std::string newPrefix = prefix + (isLast ? "    " : "│   ");
     std::vector<Node*> children = node->getChildren();
