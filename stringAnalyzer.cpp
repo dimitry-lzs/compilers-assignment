@@ -199,14 +199,6 @@ void parse(const std::string &input) {
         }
     }
 
-    prettyPrintTree(root);
-    std::cout << "String is recognized" << '\n';
-}
-
-int main(int argc, char *argv[]) {
-    initializeRulesTable();
-    initializeTerminalCharacters();
-
     #ifdef _WIN32
     // Windows-specific code for UTF-8 support because
     // certain characters used to display tree
@@ -214,6 +206,25 @@ int main(int argc, char *argv[]) {
     UINT oldCp = GetConsoleOutputCP();
     SetConsoleOutputCP(CP_UTF8);
     #endif
+
+    prettyPrintTree(root);
+
+    #ifdef _WIN32
+    // Restore the original code page on Windows
+    SetConsoleOutputCP(oldCp);
+    #endif
+
+    std::cout << "String is recognized" << '\n';
+
+    // Free memory from tree
+    delete currentNode;
+    delete root;
+}
+
+int main(int argc, char *argv[]) {
+    initializeRulesTable();
+    initializeTerminalCharacters();
+
 
     // Valid strings tests
     std::vector<std::string> validStrings;
@@ -298,11 +309,6 @@ int main(int argc, char *argv[]) {
     }
 
     parse(toParse);
-
-    #ifdef _WIN32
-    // Restore the original code page on Windows
-    SetConsoleOutputCP(oldCp);
-    #endif
 
     return 0;
 }
