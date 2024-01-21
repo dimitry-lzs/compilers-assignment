@@ -247,6 +247,73 @@ g++ -std=c++11  stringAnalyzer.cpp node.cpp -o stringAnalyzer
 
 Ο αναλυτής επιστρέφει το σχετικό δέντρο και εκτυπώνει την ανάλυση, με παράδειγμα την έκφραση ((a-b)*(a+b)).
 
+### Τύπος Γραμματικής
+
+Ας εξετάσουμε αν η ακόλουθη γραμματική είναι LL(1).
+Για αυτό, χρειάζεται να υπολογίσουμε τα σύνολα FIRST και FOLLOW για κάθε μη τερματικό.
+
+```plaintext
+G → (M)
+M → ΥΖ
+Υ → a | b | G
+Ζ → *M | -M | +M | ε
+```
+
+#### Σύνολα FIRST
+```
+FIRST(G) = {(}
+FIRST(M) = FIRST(Y) = {a, b, (}
+FIRST(Y) = {a, b, (}
+FIRST(Z) = {*, -, +, ε}
+```
+
+#### Σύνολα FOLLOW
+```
+FOLLOW(G) = {$, *, +, -, )}
+FOLLOW(M) = FOLLOW(Z) = {)}
+FOLLOW(Y) = {*, +, -, )}
+```
+
+#### Συναρτήσεις EMPTY
+```plaintext
+EMPTY(G) = FALSE
+EMPTY(M) = FALSE
+EMPTY(Y) = FALSE
+EMPTY(Z) = TRUE
+```
+
+#### Σύνολα LOOKAHEAD
+```
+LOOKAHEAD(G → (M)) = FIRST(() = {(}
+LOOKAHEAD(M → Y Z) = FIRST(Y) = {a, b, (}
+
+LOOKAHEAD(Y → a) = FIRST(a) = {a}
+LOOKAHEAD(Y → b) = FIRST(b) = {b}
+LOOKAHEAD(Y → G) = FIRST(G) = {(}
+
+LOOKAHEAD(Z → *M) = FIRST(*) = {*}
+LOOKAHEAD(Z → -M) = FIRST(-) = {-}
+LOOKAHEAD(Z → +M) = FIRST(+) = {+}
+LOOKAHEAD(Z → ε) = FOLLOW(Z) = {)}
+```
+
+Για να επιβεβαιώσουμε ότι η γραμματική είναι LL(1), πρέπει να εξασφαλίσουμε ότι τα σύνολα LOOKAHEAD για κάθε παραγωγή ενός μη τερματικού είναι ασυμβίβαστα, δηλαδή το διασταύρωσή τους είναι κενό σύνολο. Αυτό σημαίνει ότι δεν υπάρχουν κοινά στοιχεία στα LOOKAHEAD σύνολα των παραγωγών του ίδιου μη τερματικού, επιτρέποντας στον parser να αποφασίσει αμφισβητήσιμα ποια παραγωγή να χρησιμοποιήσει με βάση το επόμενο είσοδο σύμβολο.
+
+```
+LOOKAHEAD(Y → a) ∩ LOOKAHEAD(Y → b) = ∅
+LOOKAHEAD(Y → a) ∩ LOOKAHEAD(Y → G) = ∅
+LOOKAHEAD(Y → b) ∩ LOOKAHEAD(Y → G) = ∅
+
+LOOKAHEAD(Z → *M) ∩ LOOKAHEAD(Z → -M) = ∅
+LOOKAHEAD(Z → *M) ∩ LOOKAHEAD(Z → +M) = ∅
+LOOKAHEAD(Z → *M) ∩ LOOKAHEAD(Z → ε) = ∅
+LOOKAHEAD(Z → -M) ∩ LOOKAHEAD(Z → +M) = ∅
+LOOKAHEAD(Z → -M) ∩ LOOKAHEAD(Z → ε) = ∅
+LOOKAHEAD(Z → +M) ∩ LOOKAHEAD(Z → ε) = ∅
+```
+
+Καθώς καμία από τις παραγωγές του ίδιου μη τερματικού δεν έχει το ίδιο σύνολο LOOKAHEAD, η γραμματική επιβεβαιώνεται ως LL(1).
+
 ### Εισαγωγή Βιβλιοθηκών
 
 ```c++
